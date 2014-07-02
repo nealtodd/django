@@ -20,7 +20,7 @@ from django.forms.utils import ErrorList
 from django.http import QueryDict
 from django.template import Template, Context
 from django.test import TestCase
-from django.test.utils import str_prefix
+from django.test.utils import str_prefix, override_settings
 from django.utils.datastructures import MultiValueDict, MergeDict
 from django.utils.safestring import mark_safe
 from django.utils import six
@@ -1105,6 +1105,93 @@ class FormsTestCase(TestCase):
         f = FavoriteForm(auto_id=False)
         self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
 <li>Favorite animal: <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='?')
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal? <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='')
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='\u2192')
+        self.assertHTMLEqual(f.as_ul(), '<li>Favorite color? <input type="text" name="color" /></li>\n<li>Favorite animal\u2192 <input type="text" name="animal" /></li>\n<li>Secret answer = <input type="text" name="answer" /></li>')
+
+    @override_settings(LABEL_SUFFIX=' #')
+    def test_label_suffix_setting(self):
+        # The default 'label_suffix' comes from settings.LABEL_SUFFIX. The default global setting
+        # is the colon (:). This can be changed to change the default for all forms.
+        class FavoriteForm(Form):
+            color = CharField(label='Favorite color?')
+            animal = CharField(label='Favorite animal')
+            answer = CharField(label='Secret answer', label_suffix=' =')
+
+        f = FavoriteForm(auto_id=False)
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal # <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='?')
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal? <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='')
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='\u2192')
+        self.assertHTMLEqual(f.as_ul(), '<li>Favorite color? <input type="text" name="color" /></li>\n<li>Favorite animal\u2192 <input type="text" name="animal" /></li>\n<li>Secret answer = <input type="text" name="answer" /></li>')
+
+    @override_settings(LABEL_SUFFIX='')
+    def test_label_suffix_setting_blank(self):
+        # The default 'label_suffix' comes from settings.LABEL_SUFFIX. The default global setting
+        # is the colon (:). This can be changed to change the default for all forms.
+        # The form translates settings.LABEL_SUFFIX but due to a quirk of the .po files an empty
+        # string would translate to a description string of the .po file status, not an empty string.
+        # So, test this special case is handled correctly in the form.
+        class FavoriteForm(Form):
+            color = CharField(label='Favorite color?')
+            animal = CharField(label='Favorite animal')
+            answer = CharField(label='Secret answer', label_suffix=' =')
+
+        f = FavoriteForm(auto_id=False)
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='?')
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal? <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='')
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal <input type="text" name="animal" /></li>
+<li>Secret answer = <input type="text" name="answer" /></li>""")
+
+        f = FavoriteForm(auto_id=False, label_suffix='\u2192')
+        self.assertHTMLEqual(f.as_ul(), '<li>Favorite color? <input type="text" name="color" /></li>\n<li>Favorite animal\u2192 <input type="text" name="animal" /></li>\n<li>Secret answer = <input type="text" name="answer" /></li>')
+
+    @override_settings(LABEL_SUFFIX=None)
+    def test_label_suffix_setting_none(self):
+        # The default 'label_suffix' comes from settings.LABEL_SUFFIX. The default global setting
+        # is the colon (:). This can be changed to change the default for all forms.
+        # Test that the edge-case of settings.LABEL_SUFFIX = None (a logical value in context) is
+        # handled gracefully in the form (by setting Form.label_suffix to an empty string, i.e.
+        # equivalent to settings.LABEL_SUFFIX = '').
+        class FavoriteForm(Form):
+            color = CharField(label='Favorite color?')
+            animal = CharField(label='Favorite animal')
+            answer = CharField(label='Secret answer', label_suffix=' =')
+
+        f = FavoriteForm(auto_id=False)
+        self.assertHTMLEqual(f.as_ul(), """<li>Favorite color? <input type="text" name="color" /></li>
+<li>Favorite animal <input type="text" name="animal" /></li>
 <li>Secret answer = <input type="text" name="answer" /></li>""")
 
         f = FavoriteForm(auto_id=False, label_suffix='?')
