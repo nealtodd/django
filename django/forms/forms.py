@@ -9,6 +9,7 @@ import copy
 import datetime
 import warnings
 
+from django.conf import settings
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.forms.fields import Field, FileField
 from django.forms.utils import flatatt, ErrorDict, ErrorList
@@ -119,7 +120,12 @@ class BaseForm(object):
         self.initial = initial or {}
         self.error_class = error_class
         # Translators: This is the default suffix added to form field labels
-        self.label_suffix = label_suffix if label_suffix is not None else _(':')
+        if label_suffix is None:
+            # Get the default label suffix from settings
+            # (translating an empty string doesn't give an empty string)
+            self.label_suffix = _(settings.LABEL_SUFFIX) if settings.LABEL_SUFFIX else ''
+        else:
+            self.label_suffix = label_suffix
         self.empty_permitted = empty_permitted
         self._errors = None  # Stores the errors after clean() has been called.
         self._changed_data = None

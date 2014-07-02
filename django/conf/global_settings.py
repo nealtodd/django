@@ -618,3 +618,11 @@ MIGRATION_MODULES = {}
 # serious issues like errors and criticals does not result in hiding the
 # message, but Django will not stop you from e.g. running server.
 SILENCED_SYSTEM_CHECKS = []
+
+#########
+# FORMS #
+#########
+
+# Default string for Form.label_suffix that will be appended after any label name
+# when a form is rendered (with translation).
+LABEL_SUFFIX = ':'
