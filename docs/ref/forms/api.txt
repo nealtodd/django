@@ -639,7 +639,7 @@ By default, ``auto_id`` is set to the string ``'id_%s'``.
 
 .. attribute:: Form.label_suffix
 
-A translatable string (defaults to a colon (``:``) in English) that will be
+A translatable string (defaults to :setting:`LABEL_SUFFIX`) that will be
 appended after any label name when a form is rendered.
 
 It's possible to customize that character, or omit it entirely, using the

@@ -1479,6 +1479,20 @@ A tuple of IP addresses, as strings, that:
 * Receive X headers in admindocs if the ``XViewMiddleware`` is installed (see
   :doc:`/ref/contrib/admin/admindocs`)
 
+
+.. setting:: LABEL_SUFFIX
+
+LABEL_SUFFIX
+------------
+.. versionadded:: 1.8
+
+Default: ``':'``
+
+A string representing the default for :attr:`Form.label_suffix
+<django.forms.Form.label_suffix>`. Defaults to a colon (``:``) in English
+but is translated. An empty string results in an empty ``label_suffix`` (no
+translation).
+
 .. setting:: LANGUAGE_CODE
 
 LANGUAGE_CODE
@@ -2931,6 +2945,10 @@ File uploads
 * :setting:`FILE_UPLOAD_TEMP_DIR`
 * :setting:`MEDIA_ROOT`
 * :setting:`MEDIA_URL`
+
+Forms
+-----
+* :setting:`LABEL_SUFFIX`
 
 Globalization (i18n/l10n)
 -------------------------
